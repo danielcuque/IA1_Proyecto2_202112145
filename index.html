@@ -55,12 +55,12 @@
     <title>Proyecto 2</title>
 </head>
 <body>
-    <section>
-        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+    <section class="overflow-visible">
+        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 overflow-scroll">
             <h1 class="items-center my-6 text-3xl font-semibold text-gray-900">
                 Proyecto 2
             </h1>
-            <div id="panels" class="flex flex-row w-screen justify-between px-10">
+            <div id="panels" class="flex flex-col w-screen justify-between px-10">
                 <div id="adminButtons" class="flex flex-col justify-center gap-10 w-full align-top">
                     <input type="file" id="showStudentsChooser" class="hidden">
                     <div>
@@ -146,6 +146,7 @@
                     </div>
                 </div>
             </div>
+            <canvas></canvas>
         </div>
     </section>
 </body>

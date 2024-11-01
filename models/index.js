@@ -5,9 +5,7 @@ const selectMLModel = document.getElementById('selectMLModel');
 const massiveLoadButton = document.getElementById('massiveLoadBtn');
 const massiveLoadChooser = document.getElementById('massiveLoadChooser');
 const fileNameCSV = document.getElementById('fileNameCSV');
-
 const commonParamsContainer = document.getElementById('commonParams');
-console.log(commonParamsContainer, fileNameCSV);
 
 // Botones de entrenamiento
 const entrenarModelo = document.getElementById('trainModelBtn');
