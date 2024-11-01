@@ -81,6 +81,70 @@ export const showSnackbar = (message, type) => {
 
 }
 
+export const showLinearGraph = (xValues, yValues) => {
+    const ctx = document.getElementById("myChart").getContext("2d");
+
+    // Si el gráfico ya existe, destrúyelo
+    if (myChart) {
+        myChart.destroy(); // Destruir el gráfico existente
+    }
+
+    // Calcular R^2
+    const r2Value = calculateR2(predictions, yValues);
+
+    // Crear gráfico de regresión lineal
+    myChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: xValues,
+            datasets: [
+                {
+                    label: "Predicciones Lineales",
+                    data: predictions,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 2,
+                    fill: false,
+                },
+                {
+                    label: "Valores Reales",
+                    data: yValues,
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    borderWidth: 2,
+                    fill: false,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: "X",
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: "Y",
+                    },
+                },
+            },
+            plugins: {
+                // Plugin para mostrar R^2 en la gráfica
+                beforeDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.font = "16px Arial";
+                    ctx.fillStyle = "black";
+                    ctx.fillText(`R^2: ${r2Value.toFixed(2)}`, 10, 30);
+                    ctx.restore();
+                },
+            },
+        },
+    });
+}
+
 
 export const validFilesLoad = (allowedExtensions, files) => {
     const invalidFiles = [];

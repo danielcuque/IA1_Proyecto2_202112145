@@ -1,4 +1,4 @@
-import { showSnackbar, validFilesLoad } from "./utils.js";
+import { showSnackbar, validFilesLoad, showLinearGraph } from "./utils.js";
 
 // Botones de carga
 const selectMLModel = document.getElementById('selectMLModel');
@@ -45,14 +45,35 @@ const getDataParsed = () => {
 }
 
 // Modelos
-const regresionLineal = () => {
+const regresionLineal = (accion) => {
 
     const data = getDataParsed();
+    const xValues = data.map(d => d.x);
+    const yValues = data.map(d => d.y);
+
+
+    const linearModel = new LinearRegression();
+    linearModel.fit(xValues, yValues);
+    console.log(linearModel);
+
+    if (accion === 'entrenar') {
+        showSnackbar('Modelo entrenado', 'success');
+        return;
+    }
+
+    if (accion === 'predicciones') {
+        const predictions = linearModel.predict(xValues);
+        showLinearGraph(xValues, predictions);
+        return;
+    }
+
     console.log(data);
 }
 
-const regresionPolynomial = () => {
+const regresionPolynomial = (accion) => {
     const data = getDataParsed();
+    const xValues = data.map(d => d.x);
+
     console.log(data);
 }
 
@@ -98,6 +119,6 @@ const readJsonFile = (file) => {
 // Botones de entrenamiento
 entrenarModelo.addEventListener('click', () => {
     const model = selectMLModel.value;
-    models[model]();
+    models[model]('entrenarModelo');
 });
 

@@ -104,6 +104,27 @@
                         class="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                         Archivo de carga
                     </button>
+                    <!-- Parametros comunes para los modelos -->
+                     <div id="'commonParams">
+                        <!-- Columan eje x -->
+                        <div>
+                            <label for="axisX" class="block mb-2 text-sm font-medium text-gray-900">Elige el modelo</label>
+                            <select id="axisX" name="axisX"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="x" selected>X</option>
+                                <option value="y">Y</option>
+                            </select>
+                        </div>
+                        <!-- Columna eje y -->
+                        <div>
+                            <label for="yAxis" class="block mb-2 text-sm font-medium text-gray-900">Elige el modelo</label>
+                            <select id="yAxis" name="yAxis"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="x" selected>X</option>
+                                <option value="y">Y</option>
+                            </select>
+                        </div>
+                     </div>
                     <div class="flex w-full space-x-2"> <!-- Flex container with spacing between buttons -->
                         <button id="trainModelBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                             Entrenar modelo
@@ -123,5 +144,6 @@
         </div>
     </section>
 </body>
+<script type="text/javascript" src="lib/tytus.js"></script>
 <script type="module" src="./models/index.js"></script>
 </html>
