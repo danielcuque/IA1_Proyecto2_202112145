@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { "50": "#eff6ff", "100": "#dbeafe", "200": "#bfdbfe", "300": "#93c5fd", "400": "#60a5fa", "500": "#3b82f6", "600": "#2563eb", "700": "#1d4ed8", "800": "#1e40af", "900": "#1e3a8a" }
+                    }
+                },
+                fontFamily: {
+                    'body': [
+                        'Inter',
+                        'ui-sans-serif',
+                        'system-ui',
+                        '-apple-system',
+                        'system-ui',
+                        'Segoe UI',
+                        'Roboto',
+                        'Helvetica Neue',
+                        'Arial',
+                        'Noto Sans',
+                        'sans-serif',
+                        'Apple Color Emoji',
+                        'Segoe UI Emoji',
+                        'Segoe UI Symbol',
+                        'Noto Color Emoji'
+                    ],
+                    'sans': [
+                        'Inter',
+                        'ui-sans-serif',
+                        'system-ui',
+                        '-apple-system',
+                        'system-ui',
+                        'Segoe UI',
+                        'Roboto',
+                        'Helvetica Neue',
+                        'Arial',
+                        'Noto Sans',
+                        'sans-serif',
+                        'Apple Color Emoji',
+                        'Segoe UI Emoji',
+                        'Segoe UI Symbol',
+                        'Noto Color Emoji'
+                    ]
+                }
+            }
+        }
+    </script>
+    <title>Proyecto 2</title>
+</head>
+<body>
+    <section>
+        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+            <h1 class="items-center my-6 text-3xl font-semibold text-gray-900">
+                Proyecto 2
+            </h1>
+            <div id="panels" class="flex flex-row w-screen justify-between px-10">
+                <div id="adminButtons" class="flex flex-col justify-center gap-10 w-full align-top">
+                    <input type="file" id="showStudentsChooser" class="hidden">
+                    <div>
+                        <label for="selectMLModel" class="block mb-2 text-sm font-medium text-gray-900">Elige el modelo</label>
+                        <select id="selectMLModel" name="selectMLModel"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="regresionPolynomial" selected>Regresión polinomial</option>
+                            <option value="regresionLineal">Regresión lineal</option>
+                        </select>
+                    </div>
+                    <input type="file" id="studentsTreeChooser" class="hidden">
+
+                    <div class="fixed z-50 top-0 left-0 w-full h-full  justify-center items-center hidden"
+                        id="treeModalPreview">
+                        <!-- Modal Overlay -->
+                        <div class="absolute top-0 left-0 w-full h-full bg-gray-800 opacity-50"></div>
+
+                        <!-- Modal Content -->
+                        <div class="relative bg-white rounded-lg w-2/3">
+                            <!-- Close Button -->
+                            <button class="absolute top-0 right-0 m-3 text-gray-500 hover:text-gray-800"
+                                id="closeModalBtn">
+                                <svg class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 5.293a1 1 0 011.414 0L10 8.586l3.293-3.293a1 1 0 011.414 1.414L11.414 10l3.293 3.293a1 1 0 01-1.414 1.414L10 11.414l-3.293 3.293a1 1 0 01-1.414-1.414L8.586 10 5.293 6.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Image Preview -->
+                            <div class="flex justify-center p-5">
+                                <img id="treeImagePreview"
+                                    src="https://quickchart.io/graphviz?graph=digraph{ a -> b }" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="massiveLoadChooser" class="hidden">
+                    <div class="hidden" id="fileNameCSV">
+                    </div>
+                    <button id="massiveLoadBtn"
+                        class="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                        Archivo de carga
+                    </button>
+                    <div class="flex w-full space-x-2"> <!-- Flex container with spacing between buttons -->
+                        <button id="trainModelBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                            Entrenar modelo
+                        </button>
+                        <button id="predictBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                            Predicciones
+                        </button>
+                        <button id="trendsBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                            Tendencias
+                        </button>
+                        <button id="patternsBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                            Patrones
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+<script type="module" src="./models/index.js"></script>
+</html>
