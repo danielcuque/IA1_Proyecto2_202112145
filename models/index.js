@@ -20,7 +20,7 @@ const patternsButton = document.getElementById('patternsBtn');
 const results = document.getElementById('results');
 
 
-const csvToJson = (csv) => {
+const csvToJson = (csv, isNumeric = true) => {
     const lines = csv.trim().split("\n");
 
     const headers = lines[0].split(",");
@@ -31,7 +31,8 @@ const csvToJson = (csv) => {
 
         headers.forEach((header, index) => {
             header = header.trim();
-            obj[header] = Number(values[index]); // Convertimos los valores a números
+            
+            obj[header] = isNumeric ? Number(values[index]) : values[index].replace(/"/g, ''); // Convertimos los valores a números
         });
 
         return obj;
@@ -271,9 +272,82 @@ const regresionPolynomial = (accion) => {
     }
 }
 
+const showDecisionTreeGraph = (dotStr) => {
+    const chart = document.getElementById("chart");
+
+    const parsDot = vis.network.convertDot(dotStr);
+    const data = {
+        nodes: parsDot.nodes,
+        edges: parsDot.edges
+    };
+
+    const options = {
+        layout: {
+            hierarchical: {
+                levelSeparation: 100,
+                nodeSpacing: 100,
+                parentCentralization: true,
+                direction: 'UD', // UD, DU, LR, RL
+                sortMethod: 'directed',
+            },
+        },
+    };
+
+    // Crear la red de visualización
+    const network = new vis.Network(chart, data, options);
+}
+
+const arbolDecision = (accion) => {
+    const data = csvToJson(localStorage.getItem('fileContent'), false);
+    const keys = Object.keys(data[0]);
+    const array = [];
+    data.forEach(d => {
+        const item = [];
+        item.push(d.Income);
+        item.push(d.WorkTime);
+        item.push(d.Married);
+        item.push(d.Debts);
+        item.push(d.Children);
+        item.push(d.BuyHouse);
+        array.push(item);
+    });
+
+    const { train = 0.8, predict = 0.2 } = getModelParams();
+    
+    const trainData = array.slice(0, Math.floor(data.length * train));
+
+    trainData.unshift(keys);
+
+    const predictionData = array.slice(Math.floor(data.length * train));
+
+    predictionData.unshift(keys);
+
+
+    const decisionTree = new DecisionTreeID3(trainData);
+
+    const root = decisionTree.train(decisionTree.dataset);
+
+    if (accion === 'entrenar') {
+        showSnackbar('Modelo entrenado', 'success');
+        return;   
+    }
+
+    if (accion === 'predicciones') {
+        const prediction = decisionTree.predict(predictionData, root)
+        const dot = decisionTree.generateDotString(root);
+        console.log(dot);
+
+        showDecisionTreeGraph(dot);
+    }
+    
+
+    
+}
+
 const models = {
     'regresionPolynomial': regresionPolynomial,
-    'regresionLineal': regresionLineal
+    'regresionLineal': regresionLineal,
+    'arbolDecision': arbolDecision
 }
 
 // Acciones

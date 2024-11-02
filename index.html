@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,8 +54,10 @@
             }
         }
     </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     <title>Proyecto 2 - IA1 - 202112145</title>
 </head>
+
 <body>
     <section class="h-screen">
         <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 overflow-scroll">
@@ -65,12 +68,13 @@
                 <div id="adminButtons" class="flex flex-col justify-center gap-10 w-full align-top">
                     <input type="file" id="showStudentsChooser" class="hidden">
                     <div>
-                        <label for="selectMLModel" class="block mb-2 text-sm font-medium text-gray-900">Elige el modelo</label>
+                        <label for="selectMLModel" class="block mb-2 text-sm font-medium text-gray-900">Elige el
+                            modelo</label>
                         <select id="selectMLModel" name="selectMLModel"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                             <option value="regresionPolynomial" selected>Regresión polinomial</option>
                             <option value="regresionLineal">Regresión lineal</option>
-                            <option value="naiveBayes">Naive Bayes</option>
+                            <option value="arbolDecision">Arbol de decisión</option>
                         </select>
                     </div>
                     <input type="file" id="studentsTreeChooser" class="hidden">
@@ -106,22 +110,28 @@
                         class="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                         Archivo de carga
                     </button>
-                    <textarea name="modelParams" id="modelParams" placeholder="Paramétros del modelo" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-                     <!-- Botones de entrenamiento -->
+                    <textarea name="modelParams" id="modelParams" placeholder="Paramétros del modelo"
+                        class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                    <!-- Botones de entrenamiento -->
                     <div class="flex w-full space-x-2"> <!-- Flex container with spacing between buttons -->
-                        <button id="trainModelBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                        <button id="trainModelBtn"
+                            class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                             Entrenar modelo
                         </button>
-                        <button id="predictBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                        <button id="predictBtn"
+                            class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                             Predicciones
                         </button>
-                        <button id="trendsBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                        <button id="trendsBtn"
+                            class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                             Tendencias
                         </button>
-                        <button id="patternsBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                        <button id="patternsBtn"
+                            class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                             Patrones
                         </button>
-                        <button id="graphsBtn" class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
+                        <button id="graphsBtn"
+                            class="group w-1/4 inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600">
                             Gráficas
                         </button>
                     </div>
@@ -136,4 +146,5 @@
 </body>
 <script type="text/javascript" src="lib/tytus.js"></script>
 <script type="module" src="./models/index.js"></script>
+
 </html>
