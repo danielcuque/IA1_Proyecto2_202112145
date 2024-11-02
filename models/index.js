@@ -2,14 +2,14 @@ import { showSnackbar, validFilesLoad } from "./utils.js";
 
 // Inicializar gráficos
 google.charts.load('current', { packages: ['corechart'] });
-// google.charts.setOnLoadCallback(initialize);
 
 // Botones de carga
 const selectMLModel = document.getElementById('selectMLModel');
 const massiveLoadButton = document.getElementById('massiveLoadBtn');
 const massiveLoadChooser = document.getElementById('massiveLoadChooser');
 const fileNameCSV = document.getElementById('fileNameCSV');
-const modelParams = document.getElementById('modelParams')
+const modelParams = document.getElementById('modelParams');
+const log = document.getElementById('log');
 
 // Botones de entrenamiento
 const entrenarModelo = document.getElementById('trainModelBtn');
@@ -71,6 +71,77 @@ const getDataParsed = () => {
     };
 }
 
+const showTrend = (xValues, yValues) => {
+    if (xValues.length > 1 && yValues.length > 1) {
+        const trendData = [];
+
+        const slope = (yValues[yValues.length - 1] - yValues[0]) / (xValues[xValues.length - 1] - xValues[0]);
+        const trendText = slope > 0 ? "La tendencia es ascendente." : "La tendencia es descendente.";
+        
+        log.innerHTML = `<div class="alert alert-success" role="alert">${trendText}</div>`;
+
+        // Preparar los datos para el gráfico
+        for (let i = 0; i < xValues.length; i++) {
+            trendData.push([xValues[i], yValues[i]]);
+        }
+
+        google.charts.setOnLoadCallback(() => drawTrendChart(trendData, slope));
+    } else {
+        showSnackbar('No hay suficientes datos para determinar la tendencia.', 'error');
+    }
+};
+
+const drawPatternChart = (patternData) => {
+    const dataTable = new google.visualization.DataTable();
+    dataTable.addColumn('number', 'X');
+    dataTable.addColumn('number', 'Y');
+    dataTable.addRows(patternData);
+
+    const options = {
+        title: 'Patrones de Datos',
+        hAxis: { title: 'X' },
+        vAxis: { title: 'Y' },
+        legend: 'none'
+    };
+
+    const chart = new google.visualization.LineChart(document.getElementById('chart'));
+    chart.draw(dataTable, options);
+};
+
+const showPatterns = () => {
+    // Obtener los datos de entrenamiento
+    const { xValues, yValues } = getDataParsed();
+
+    if (xValues.length > 1 && yValues.length > 1) {
+        // Preparar los datos para el gráfico de patrones
+        const patternData = xValues.map((x, index) => [x, yValues[index]]);
+
+        // Configurar y cargar el gráfico de patrones
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(() => drawPatternChart(patternData));
+    } else {
+        showSnackbar('Primero carga y entrena un modelo con datos suficientes.', 'error');
+    }
+}
+
+// Función para dibujar el gráfico de tendencia
+const drawTrendChart = (trendData, slope) => {
+    const data = new google.visualization.DataTable();
+    data.addColumn('number', 'X');
+    data.addColumn('number', 'Y');
+    data.addRows(trendData);
+
+    const options = {
+        title: 'Tendencia de Datos',
+        hAxis: { title: 'X' },
+        vAxis: { title: 'Y' },
+        legend: 'none',
+        trendlines: { 0: { type: 'linear', lineWidth: 2, opacity: 0.7 } } // Configura la línea de tendencia
+    };
+
+    const chart = new google.visualization.ScatterChart(document.getElementById('chart'));
+    chart.draw(data, options);
+}
 
 // Modelos
 const regresionLineal = (accion) => {
@@ -87,6 +158,14 @@ const regresionLineal = (accion) => {
     linearModel.fit(xValues, yValues);
 
     const predictions = linearModel.predict(xValues);
+
+    const options = {
+        title: 'Regresión Lineal',
+        seriesType: 'scatter',
+        series: { 1: { type: 'line' } },
+        hAxis: { title: 'X' },
+        vAxis: { title: 'Y' }
+    };
 
     if (accion === 'entrenar') {
         const resultadoLineal = document.createElement('resultadoLineal');
@@ -105,14 +184,6 @@ const regresionLineal = (accion) => {
     }
 
     if (accion === 'predicciones') {
-        const options = {
-            title: 'Regresión Lineal',
-            seriesType: 'scatter',
-            series: { 1: { type: 'line' } },
-            hAxis: { title: 'X' },
-            vAxis: { title: 'Y' }
-        };
-
         const dataArray = [['X', 'Y real', 'Predicción']];
         xValues.forEach((x, i) => {
             dataArray.push([x, yValues[i], predictions[i]]);
@@ -122,6 +193,14 @@ const regresionLineal = (accion) => {
 
         const chart = new google.visualization.ComboChart(document.getElementById('chart'));
         chart.draw(dataTable, options);
+    }
+
+    if (accion === 'tendencias') {
+        showTrend(xValues, yValues); // Llamada a la nueva función de tendencia
+    }
+
+    if (accion === 'patrones') {
+        showPatterns();
     }
 }
 
@@ -181,6 +260,14 @@ const regresionPolynomial = (accion) => {
         chart.draw(dataTable, options);
         
         return;
+    }
+
+    if (accion === 'tendencias') {
+        showTrend(xValues, yValues); // Llamada a la nueva función de tendencia
+    }
+
+    if (accion === 'patrones') {
+        showPatterns();
     }
 }
 
