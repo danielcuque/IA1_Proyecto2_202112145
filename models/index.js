@@ -22,32 +22,40 @@ const results = document.getElementById('results');
 
 const csvToJson = (csv) => {
     const lines = csv.trim().split("\n");
-    
+
     const headers = lines[0].split(",");
-    
+
     const jsonData = lines.slice(1).map(line => {
         const values = line.split(",");
         const obj = {};
-        
+
         headers.forEach((header, index) => {
             header = header.trim();
             obj[header] = Number(values[index]); // Convertimos los valores a números
         });
-        
+
         return obj;
     });
-    
+
     return jsonData;
 }
 
 const getModelParams = () => {
-    const params = modelParams.value;
-    params = params.split(';');
-    params = params.map(param => {
+    const value = modelParams.value;
+    console.log(value);
+    
+    const params = value.split(';');
+
+    console.log(params);
+
+    const result = {};
+
+    params.forEach(param => {
         const [key, value] = param.split('=');
-        return { key, value };
+        result[key] = value;
     });
-    return params;
+
+    return result;
 }
 
 const getDataParsed = () => {
@@ -57,7 +65,6 @@ const getDataParsed = () => {
         return;
     }
     const data = csvToJson(fileContent);
-    console.log(data);
     return {
         xValues: data.map(d => d.x),
         yValues: data.map(d => d.y)
@@ -70,14 +77,18 @@ const regresionLineal = (accion) => {
 
     const { xValues, yValues } = getDataParsed();
 
+    if (xValues.length < 2) {
+        showSnackbar('No hay suficientes datos para el modelo', 'error');
+        return;
+    }
+
     const linearModel = new LinearRegression();
-    
+
     linearModel.fit(xValues, yValues);
 
     const predictions = linearModel.predict(xValues);
 
     if (accion === 'entrenar') {
-        // mostrar resultados de entrenamiento
         const resultadoLineal = document.createElement('resultadoLineal');
         results.innerHTML = '';
 
@@ -97,7 +108,7 @@ const regresionLineal = (accion) => {
         const options = {
             title: 'Regresión Lineal',
             seriesType: 'scatter',
-            series: {1: {type: 'line'}},
+            series: { 1: { type: 'line' } },
             hAxis: { title: 'X' },
             vAxis: { title: 'Y' }
         };
@@ -106,11 +117,8 @@ const regresionLineal = (accion) => {
         xValues.forEach((x, i) => {
             dataArray.push([x, yValues[i], predictions[i]]);
         });
-        console.log(dataArray);
 
         const dataTable = google.visualization.arrayToDataTable(dataArray);
-
-        console.log(dataTable);
 
         const chart = new google.visualization.ComboChart(document.getElementById('chart'));
         chart.draw(dataTable, options);
@@ -119,23 +127,61 @@ const regresionLineal = (accion) => {
 
 const regresionPolynomial = (accion) => {
     const { xValues, yValues } = getDataParsed();
+    if (xValues.length < 2) {
+        showSnackbar('No hay suficientes datos para el modelo', 'error');
+        return;
+    }
 
     const polynomialModel = new PolynomialRegression();
-    const degreeValue = document.getElementById('degree').value;
-    polynomialModel.fit(xValues, yValues, degreeValue);
+
+    const { degree = 2 } = getModelParams();
+
+    polynomialModel.fit(xValues, yValues, degree);
+    const predictions = polynomialModel.predict(xValues);
+
 
     if (accion === 'entrenar') {
+        const resultadoPolinomial = document.createElement('resultadoPolinomial');
+        results.innerHTML = '';
+
+        console.log(polynomialModel);
+
+        resultadoPolinomial.innerHTML = `
+            <div class="">
+            Degree: ${degree} <br>
+            Soluciones: ${JSON.stringify(polynomialModel.solutions.join(', '))}
+            Error: ${polynomialModel.error}
+            </div>
+            `;
+
+        results.appendChild(resultadoPolinomial);
+
         showSnackbar('Modelo entrenado', 'success');
         return;
     }
 
     if (accion === 'predicciones') {
-        const predictions = linearModel.predict(xValues);
-        showLinearGraph(xValues, predictions);
+
+        const options = {
+            title: 'Regresión Polinomial',
+            seriesType: 'scatter',
+            series: { 1: { type: 'line' } },
+            hAxis: { title: 'X' },
+            vAxis: { title: 'Y' }
+        };
+
+        const dataArray = [['X', 'Y real', 'Predicción']];
+        xValues.forEach((x, i) => {
+            dataArray.push([x, yValues[i], predictions[i]]);
+        });
+
+        const dataTable = google.visualization.arrayToDataTable(dataArray);
+
+        const chart = new google.visualization.ComboChart(document.getElementById('chart'));
+        chart.draw(dataTable, options);
+        
         return;
     }
-
-    console.log(data);
 }
 
 const models = {
