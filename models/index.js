@@ -1,17 +1,23 @@
-import { showSnackbar, validFilesLoad, showLinearGraph } from "./utils.js";
+import { showSnackbar, validFilesLoad } from "./utils.js";
+
+// Inicializar gráficos
+google.charts.load('current', { packages: ['corechart'] });
+// google.charts.setOnLoadCallback(initialize);
 
 // Botones de carga
 const selectMLModel = document.getElementById('selectMLModel');
 const massiveLoadButton = document.getElementById('massiveLoadBtn');
 const massiveLoadChooser = document.getElementById('massiveLoadChooser');
 const fileNameCSV = document.getElementById('fileNameCSV');
-const commonParamsContainer = document.getElementById('commonParams');
+const modelParams = document.getElementById('modelParams')
 
 // Botones de entrenamiento
 const entrenarModelo = document.getElementById('trainModelBtn');
 const predictButton = document.getElementById('predictBtn');
 const trendsButton = document.getElementById('trendsBtn');
 const patternsButton = document.getElementById('patternsBtn');
+
+const results = document.getElementById('results');
 
 
 const csvToJson = (csv) => {
@@ -34,6 +40,16 @@ const csvToJson = (csv) => {
     return jsonData;
 }
 
+const getModelParams = () => {
+    const params = modelParams.value;
+    params = params.split(';');
+    params = params.map(param => {
+        const [key, value] = param.split('=');
+        return { key, value };
+    });
+    return params;
+}
+
 const getDataParsed = () => {
     const fileContent = localStorage.getItem('fileContent');
     if (!fileContent) {
@@ -48,27 +64,57 @@ const getDataParsed = () => {
     };
 }
 
+
 // Modelos
 const regresionLineal = (accion) => {
 
     const { xValues, yValues } = getDataParsed();
 
     const linearModel = new LinearRegression();
+    
     linearModel.fit(xValues, yValues);
-    console.log(linearModel);
+
+    const predictions = linearModel.predict(xValues);
 
     if (accion === 'entrenar') {
+        // mostrar resultados de entrenamiento
+        const resultadoLineal = document.createElement('resultadoLineal');
+        results.innerHTML = '';
+
+        resultadoLineal.innerHTML = `
+            <div class="">
+            B: ${linearModel.b} M:${linearModel.m}
+            </div>
+            `;
+
+        results.appendChild(resultadoLineal);
+
         showSnackbar('Modelo entrenado', 'success');
         return;
     }
 
     if (accion === 'predicciones') {
-        const predictions = linearModel.predict(xValues);
-        showLinearGraph(xValues, predictions);
-        return;
-    }
+        const options = {
+            title: 'Regresión Lineal',
+            seriesType: 'scatter',
+            series: {1: {type: 'line'}},
+            hAxis: { title: 'X' },
+            vAxis: { title: 'Y' }
+        };
 
-    console.log(data);
+        const dataArray = [['X', 'Y real', 'Predicción']];
+        xValues.forEach((x, i) => {
+            dataArray.push([x, yValues[i], predictions[i]]);
+        });
+        console.log(dataArray);
+
+        const dataTable = google.visualization.arrayToDataTable(dataArray);
+
+        console.log(dataTable);
+
+        const chart = new google.visualization.ComboChart(document.getElementById('chart'));
+        chart.draw(dataTable, options);
+    }
 }
 
 const regresionPolynomial = (accion) => {
@@ -126,73 +172,6 @@ selectMLModel.addEventListener('change', () => {
     fileNameCSV.style.display = 'none';
     localStorage.removeItem('fileContent');
 
-    // De entrada, borrar parámetros extra
-    const existingDegreeDiv = document.getElementById('degreeDiv');
-    if (existingDegreeDiv) {
-        existingDegreeDiv.remove();
-    }
-
-    const existingPercentDiv = document.getElementById('percentDiv');
-    if (existingPercentDiv) {
-        existingPercentDiv.remove();
-    }
-
-    const inputClassName = "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline";
-    const labelClassName = "block mb-2 text-sm font-medium text-gray-900";
-
-    // Si es polynomial, agregar parámetro de grado polinomial
-    if (selectMLModel.value === 'regresionPolynomial') {
-        // Crear contenedor
-        const degreeDiv = document.createElement('div');
-        degreeDiv.id = 'degreeDiv';
-
-        // Crear label e input
-        const degreeLabel = document.createElement('label');
-        degreeLabel.htmlFor = 'degree';
-        degreeLabel.textContent = 'Grado del polinomio';
-        degreeLabel.className = labelClassName;
-
-        const degreeInput = document.createElement('input');
-        degreeInput.type = 'number';
-        degreeInput.id = 'degree';
-        degreeInput.name = 'degree';
-        degreeInput.value = 10;
-        degreeInput.className = inputClassName;
-
-        // Agregar label e input al div
-        degreeDiv.appendChild(degreeLabel);
-        degreeDiv.appendChild(degreeInput);
-
-        // Agregar div al contenedor de parámetros
-        commonParamsContainer.appendChild(degreeDiv);
-    }
-    
-    // Si es lineal, agregar porcentaje de entrenamiento
-    if (selectMLModel.value === 'regresionLineal') {
-        // Crear contenedor
-        const percentDiv = document.createElement('div');
-        percentDiv.id = 'percentDiv';
-
-        // Crear label e input
-        const percentLabel = document.createElement('label');
-        percentLabel.htmlFor = 'percent';
-        percentLabel.textContent = 'Porcentaje de entrenamiento';
-        percentLabel.className = labelClassName;
-
-        const percentInput = document.createElement('input');
-        percentInput.type = 'number';
-        percentInput.id = 'percent';
-        percentInput.name = 'percent';
-        percentInput.value = 0.7;
-        percentInput.className = inputClassName;
-
-        // Agregar label e input al div
-        percentDiv.appendChild(percentLabel);
-        percentDiv.appendChild(percentInput);
-
-        // Agregar div al contenedor de parámetros
-        commonParamsContainer.appendChild(percentDiv);
-    }
 });
 
 const readJsonFile = (file) => {
@@ -211,5 +190,20 @@ const readJsonFile = (file) => {
 entrenarModelo.addEventListener('click', () => {
     const model = selectMLModel.value;
     models[model]('entrenar');
+});
+
+predictButton.addEventListener('click', () => {
+    const model = selectMLModel.value;
+    models[model]('predicciones');
+});
+
+trendsButton.addEventListener('click', () => {
+    const model = selectMLModel.value;
+    models[model]('tendencias');
+});
+
+patternsButton.addEventListener('click', () => {
+    const model = selectMLModel.value;
+    models[model]('patrones');
 });
 
